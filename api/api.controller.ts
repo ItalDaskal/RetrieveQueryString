@@ -1,8 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import logging from '../logger';
-import {QueryObj, Entity} from "./api.interface";
+import {Entity} from "./api.interface";
 import apiService from "./api.service";
-import url from 'url';
 import urlParse from 'url-parse';
 
 const NAMESPACE = 'api Controller'
@@ -16,7 +15,7 @@ const storeData = async (req:Request, res:Response, next:NextFunction) => {
         }
 
         var entity : Entity[] = req.body;
-        const result = await apiService.storeData(entity);
+        const result = apiService.storeData(entity);
 
         return res.status(200).json(result);
     }catch(err){
@@ -38,7 +37,7 @@ const retriveData = async (req:Request, res:Response, next:NextFunction) => {
 
         return res.status(500).json('bad query');
     }catch(err){
-        logging.error(NAMESPACE, `api controller error post route call - ${err}`)
+        logging.error(NAMESPACE, `api controller error get route call - ${err}`)
         return res.status(500).json(err);
     }
 };
