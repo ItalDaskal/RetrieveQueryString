@@ -2,7 +2,8 @@ import http from 'http';
 import express from 'express';
 import config from './config/default';
 import logging from './logger';
-import apiRoute from './api/api.route';
+import storeRoute from './store/store.route';
+import retriveRoute from './retrieve/retrieve.route';
 
 const NAMESPACE = 'Server'
 const port = config.port;
@@ -37,7 +38,8 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/api', apiRoute);
+app.use('/store', storeRoute);
+app.use('/retrive', retriveRoute);
 
 app.use((req, res, next) => {
     const error = new Error('not found');

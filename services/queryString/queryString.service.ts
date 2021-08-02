@@ -1,47 +1,12 @@
-import {QueryObj, Entity, Operators, CompundOperators} from "./api.interface";
-
-const data: Entity[] = [];
-
-const storeData = (entity: Entity[]) => {
-    entity.forEach((e: Entity) => {
-        data.push(e);
-    });
-    return {};
-}
-
-const intersectArrays = <T>(arrays: Array<T[]>) => {
-    const intersection : any[] = [];
-
-    if(arrays.length == 1){
-        return arrays
-    }
-
-    return arrays[0].filter(x => arrays[1].indexOf(x) !== -1);
-}
-
-const populateCompundData = (compundOperator: CompundOperators, stagingData: Array<Entity[]>) => {
-    switch (compundOperator) {
-        case CompundOperators.AND:
-            return intersectArrays<Entity>(stagingData);
-    } 
-}
+import {QueryObj, Operators, CompundOperators} from './queryString.interface';
+import compundQueryService from '../compundQuery/compundQuery.service';
+import Entity from '../../store/store.interface';
+import storeService from '../../store/store.service';
 
 const isComoundOperator = (str: string) => Object.values(CompundOperators).findIndex(s => s === str) > -1;
 
-const splittedCompund = (query: string): string[] => {
-    let count:number =1;
-    for(let i=0; i < query.length; i++){
-        if(query[i] == '('){
-            break;
-        }
-        count++
-    }
-    return query.slice(count, -1).split(', ')
-}
-
 const getParams = (params: string) => params.split(/[\s,]+/);
 
-// NonCompundQuery - EQUAL(id,"first-post")
 const translateNonCompundQueryToQueryObject = (query: string) => {
     const splitted = query.split(/[\s()]+/);
     let params: any[] = []
@@ -83,7 +48,7 @@ const populateData = (predictat: Predicate | null) => {
     if(predictat == null){
         return null
     }
-    return data.filter(predictat);
+    return storeService.data.filter(predictat);
 }
 
 const initiatedFlow = (query: string) => {
@@ -92,7 +57,7 @@ const initiatedFlow = (query: string) => {
     return populateData(pridicate);
 }
 
-export const initQuery = (query: string) => {
+export const getDataByQuery = (query: string) => {
     const splitted = query.split(/[\s()]+/);
     const isCompund = isComoundOperator(splitted[0]);
     
@@ -101,12 +66,12 @@ export const initQuery = (query: string) => {
     }
     if (isCompund) {
         const compundOperator = splitted[0] as CompundOperators;
-        const querysArray: string[] = splittedCompund(query)
+        const querysArray: string[] = compundQueryService.splittedCompund(query)
         const stagingData: Array<Entity[] | any> = querysArray.map(m => initiatedFlow(m)).filter(function (elem) {
             return elem !== undefined;
         });
-        return populateCompundData(compundOperator, stagingData)
+        return compundQueryService.populateCompundData(compundOperator, stagingData)
     }
 }
 
-export default {storeData, initQuery};
+export default {getDataByQuery};
