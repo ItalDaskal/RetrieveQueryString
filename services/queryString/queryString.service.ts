@@ -5,30 +5,22 @@ import storeService from '../../store/store.service';
 
 const isComoundOperator = (str: string) => Object.values(CompundOperators).findIndex(s => s === str) > -1;
 
-const getParams = (params: string) => params.split(/[\s,]+/);
-
-const translateNonCompundQueryToQueryObject = (query: string) => {
-    const splitted = query.split(/[\s()]+/);
-    let params: any[] = []
-    params = getParams(splitted[1])
-
-    switch(splitted[0]){
+const getOperator = (op: string) => {
+    switch(op){
         case "EQUAL":
-            const equalObj = {
-                operator : Operators.EQUAL,
-                property : params[0],
-                value : params[1].replace(/"/g, '')
-            }
-            return equalObj
+            return Operators.EQUAL
         case "GREATER_THAN":
-            const gtObj = {
-                operator : Operators.GREATER_THAN,
-                property : params[0],
-                value : parseInt(params[1])
-            }
-            return gtObj
+            return Operators.GREATER_THAN
     }
-    return null
+    return Operators.NAN
+}
+
+const translateNonCompundQueryToQueryObject = (splittedQuery: any[]) => {
+    return {
+        operator: getOperator(splittedQuery[0]),
+        property : splittedQuery[1],
+        value : splittedQuery[2]
+    }
 }
 
 type Predicate = (d: Entity) => boolean;
@@ -51,25 +43,33 @@ const populateData = (predictat: Predicate | null) => {
     return storeService.data.filter(predictat);
 }
 
-const initiatedFlow = (query: string) => {
+
+const getStagingData = (querysArray: string[]) => {
+    return querysArray.map(m => initiatedFlow(getSplittedQuery(m)))
+    .filter(function (elem) {
+        return elem !== undefined;
+    });
+}
+
+const initiatedFlow = (query: any[]) => {
     const queryObj: QueryObj | null = translateNonCompundQueryToQueryObject(query)
     const pridicate: Predicate | null = getNonCompundPredictat(queryObj);
     return populateData(pridicate);
 }
 
+const getSplittedQuery = (query: string) => query.split(/[(\s)()\"\,]/).filter(w => w);
+
 export const getDataByQuery = (query: string) => {
-    const splitted = query.split(/[\s()]+/);
+    const splitted : any[] = getSplittedQuery(query);
     const isCompund = isComoundOperator(splitted[0]);
     
     if (!isCompund) {
-        return initiatedFlow(query);
+        return initiatedFlow(splitted);
     }
     if (isCompund) {
         const compundOperator = splitted[0] as CompundOperators;
         const querysArray: string[] = compundQueryService.splittedCompund(query)
-        const stagingData: Array<Entity[] | any> = querysArray.map(m => initiatedFlow(m)).filter(function (elem) {
-            return elem !== undefined;
-        });
+        const stagingData: Array<Entity[] | any> = getStagingData(querysArray);
         return compundQueryService.populateCompundData(compundOperator, stagingData)
     }
 }

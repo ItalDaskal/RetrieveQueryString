@@ -1,6 +1,7 @@
 import Entity from '../../store/store.interface';
 
 export enum Operators {
+    NAN = "",
     EQUAL = "===",
     GREATER_THAN = ">",
     AND = "&&"
