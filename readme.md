@@ -1,4 +1,4 @@
-# Wix Assignment
+# Retrieve Query String
 
 > Backend API for store and retrieve data
 
@@ -10,7 +10,7 @@ npm run dev
 - Version: 1.0.0
 - License: MIT
 
-## Postman Example
+## endpoints Example
  post endpoint >> http://localhost:5000/api/post/store
 
  body example >>
@@ -37,6 +37,10 @@ npm run dev
 }]
 
 get endpoint >> 
+
+  **availeble Operators
+    EQUAL | GREATER_THAN | LESS_THAN | AND | OR | NOT
+    
     http://localhost:5000/api/get/retrive?query=AND(EQUAL(id,"first-post"), GREATER_THAN(views,100))
     http://localhost:5000/api/get/retrive?query=EQUAL(id,"second-post")
     http://localhost:5000/api/get/retrive?query=GREATER_THAN(views,100)
