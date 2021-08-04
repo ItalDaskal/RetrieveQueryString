@@ -1,13 +1,18 @@
 import Entity from '../../store/store.interface';
 
 export enum Operators {
-    NAN = "",
-    EQUAL = "===",
-    GREATER_THAN = ">",
-    AND = "&&"
+    NAN = '',
+    EQUAL = '===',
+    NOTEQUAL = '!=',
+    GREATER_THAN = '>',
+    LESS_THAN = '<',
+    AND = '&&',
+    OR = '||',
+    NOT = '!'
 }
 export enum CompundOperators {
     AND = 'AND',
+    OR = 'OR',
     NOT = 'NOT'
 }
 

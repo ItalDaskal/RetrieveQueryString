@@ -9,8 +9,12 @@ const getOperator = (op: string) => {
     switch(op){
         case "EQUAL":
             return Operators.EQUAL
+        case "NOTEQUAL":
+                return Operators.NOTEQUAL
         case "GREATER_THAN":
             return Operators.GREATER_THAN
+        case "LESS_THAN":
+            return Operators.LESS_THAN
     }
     return Operators.NAN
 }
@@ -29,8 +33,12 @@ const getNonCompundPredictat = (queryObj: QueryObj | null): Predicate | null => 
         switch(queryObj.operator) {
             case Operators.EQUAL:
                 return (d: Entity) => d[queryObj.property] === queryObj.value
+            case Operators.NOTEQUAL:
+                return (d: Entity) => d[queryObj.property] != queryObj.value
             case Operators.GREATER_THAN:
                 return (d: Entity) => d[queryObj.property] > queryObj.value
+            case Operators.LESS_THAN:
+                return (d: Entity) => d[queryObj.property] < queryObj.value
         }
     }
     return null;
@@ -42,7 +50,6 @@ const populateData = (predictat: Predicate | null) => {
     }
     return storeService.data.filter(predictat);
 }
-
 
 const getStagingData = (querysArray: string[]) => {
     return querysArray.map(m => initiatedFlow(getSplittedQuery(m)))
@@ -68,7 +75,7 @@ export const getDataByQuery = (query: string) => {
     }
     if (isCompund) {
         const compundOperator = splitted[0] as CompundOperators;
-        const querysArray: string[] = compundQueryService.splittedCompund(query)
+        const querysArray: string[] = compundQueryService.splittedCompund(compundOperator, query);
         const stagingData: Array<Entity[] | any> = getStagingData(querysArray);
         return compundQueryService.populateCompundData(compundOperator, stagingData)
     }
